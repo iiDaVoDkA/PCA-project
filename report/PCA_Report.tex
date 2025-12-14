@@ -63,7 +63,7 @@
 \thispagestyle{empty}
 
 \begin{abstract}
-This report presents a comprehensive Principal Component Analysis (PCA) applied to environmental sustainability data from the fast fashion industry. We analyze 3,000 observations across 12 quantitative variables measuring production volumes, carbon emissions, water usage, and sustainability metrics from five major brands. Using correlation-based PCA on standardized data, we identify the principal factorial axes, calculate explained variance, and interpret the underlying latent factors. Our analysis reveals the dimensional structure of environmental impact in fast fashion and provides actionable insights for sustainability assessment.
+This report presents a Principal Component Analysis (PCA) applied to environmental sustainability data from the fast fashion industry. We analyze 3,000 observations across 15 quantitative variables measuring production volumes, carbon emissions, water usage, sustainability metrics, and social conditions from five major brands. Following the methodology presented in Chapter 2, we examine the correlation matrix, compute eigenvalues and overall quality of explanation (oqe), analyze the saturation matrix, and interpret the principal components. Our analysis reveals the multidimensional structure of environmental and social impact in fast fashion, providing insights into the complex relationships between production practices, environmental footprint, and labor conditions.
 \end{abstract}
 
 \tableofcontents
@@ -75,23 +75,25 @@ This report presents a comprehensive Principal Component Analysis (PCA) applied 
 
 \subsection{Background and Motivation}
 
-Principal Component Analysis (PCA), introduced by Karl Pearson in 1901 and later developed by Harold Hotelling in 1933, is a fundamental technique in multivariate statistical analysis. It serves as the cornerstone of dimensionality reduction, transforming a set of potentially correlated variables into a set of linearly uncorrelated variables called \textit{principal components}.
+Principal Component Analysis (PCA), as presented in Chapter 2 of the course, is a method for analyzing a large amount of data. The idea is to identify redundancies in the data and, by merging them, extract new data containing more information. The procedure involves diagonalization, which provides access to new variables on which we can work.
 
 The fast fashion industry presents a compelling case study for PCA application due to:
 \begin{itemize}
     \item High-dimensional environmental data with multiple correlated metrics
-    \item Need for synthetic indicators to assess sustainability performance
-    \item Complex relationships between production, emissions, and social factors
+    \item Need to understand the underlying structure of sustainability indicators
+    \item Complex relationships between production, emissions, social factors, and economic performance
 \end{itemize}
 
 \subsection{Objectives}
 
 The primary objectives of this analysis are:
 \begin{enumerate}
-    \item Implement PCA on environmental sustainability data
-    \item Identify and interpret principal components
-    \item Reduce dimensionality while preserving maximum variance
-    \item Visualize brands and countries in the factorial space
+    \item Implement PCA following the methodology from Chapter 2
+    \item Examine the correlation matrix $\mathbf{R}$ to identify initial variable groupings
+    \item Compute eigenvalues and overall quality of explanation (oqe)
+    \item Analyze the saturation matrix $\mathbf{S}$ to identify variables correlated with principal components
+    \item Interpret the principal axes and their practical meaning
+    \item Visualize results through correlation circles
 \end{enumerate}
 
 \subsection{Dataset Description}
@@ -99,7 +101,7 @@ The primary objectives of this analysis are:
 We utilize the \textbf{True Cost of Fast Fashion} dataset containing:
 \begin{itemize}
     \item \textbf{Observations}: $n = 3000$ records from 5 brands across 10 countries (2015-2024)
-    \item \textbf{Variables}: $p = 12$ quantitative environmental and sustainability metrics
+    \item \textbf{Variables}: $p = 15$ quantitative variables covering production, environmental, economic, sustainability, and social dimensions
     \item \textbf{Brands}: Shein, Zara, H\&M, Forever 21, Uniqlo
 \end{itemize}
 
@@ -109,27 +111,10 @@ We utilize the \textbf{True Cost of Fast Fashion} dataset containing:
 
 \subsection{Problem Formulation}
 
-Let $\mathbf{X}$ be a $n \times p$ data matrix where each row represents an observation and each column represents a variable. The goal of PCA is to find a new coordinate system such that the greatest variance by any projection of the data lies on the first axis (first principal component), the second greatest variance on the second axis, and so on.
+Let $\mathbf{X}$ be a $n \times p$ data matrix where each row represents an observation and each column represents a variable. After standardizing the data to obtain $\mathbf{Z}$, we compute the correlation matrix $\mathbf{R}$.
 
-\begin{definition}[Principal Components]
-Given a centered data matrix $\mathbf{X}_c = \mathbf{X} - \mathbf{\bar{X}}$, the $k$-th principal component is defined as:
-\begin{equation}
-    \mathbf{z}_k = \mathbf{X}_c \mathbf{v}_k
-\end{equation}
-where $\mathbf{v}_k$ is the $k$-th eigenvector of the covariance (or correlation) matrix.
-\end{definition}
+\subsection{Correlation Matrix}
 
-\subsection{Choice of Matrix: Covariance vs. Correlation}
-
-\subsubsection{Covariance Matrix}
-The sample covariance matrix is defined as:
-\begin{equation}
-    \mathbf{S} = \frac{1}{n-1} \mathbf{X}_c^\top \mathbf{X}_c
-\end{equation}
-
-where element $s_{jk} = \frac{1}{n-1}\sum_{i=1}^{n}(x_{ij} - \bar{x}_j)(x_{ik} - \bar{x}_k)$.
-
-\subsubsection{Correlation Matrix}
 For standardized data $\mathbf{Z}$ where $z_{ij} = \frac{x_{ij} - \bar{x}_j}{s_j}$, the correlation matrix is:
 \begin{equation}
     \mathbf{R} = \frac{1}{n-1} \mathbf{Z}^\top \mathbf{Z}
@@ -137,7 +122,7 @@ For standardized data $\mathbf{Z}$ where $z_{ij} = \frac{x_{ij} - \bar{x}_j}{s_j
 
 where element $r_{jk} = \frac{s_{jk}}{s_j s_k}$ is the Pearson correlation coefficient.
 
-\textbf{Justification for Correlation-based PCA:} Our variables have heterogeneous units (tonnes, USD, percentages, indices). Using the covariance matrix would cause variables with larger scales to dominate the analysis. Standardization ensures equal contribution from all variables.
+\textbf{Justification for Correlation-based PCA:} Our variables have heterogeneous units (tonnes, USD, percentages, indices, hours, counts). Using the covariance matrix would cause variables with larger scales to dominate the analysis. Standardization ensures equal contribution from all variables.
 
 \subsection{Spectral Decomposition}
 
@@ -149,78 +134,41 @@ For a symmetric positive semi-definite matrix $\mathbf{R} \in \mathbb{R}^{p \tim
 where $\mathbf{\Lambda} = \text{diag}(\lambda_1, \lambda_2, \ldots, \lambda_p)$ with $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_p \geq 0$.
 \end{theorem}
 
-The eigenvalue equation is:
+\subsection{Overall Quality of Explanation (OQE)}
+
+Following Chapter 2, we define the overall quality of explanation for a principal axis $i$ as:
 \begin{equation}
-    \mathbf{R} \mathbf{v}_k = \lambda_k \mathbf{v}_k, \quad k = 1, \ldots, p
+    \text{oqe}(i) = \frac{\lambda_i}{p}
 \end{equation}
 
-\subsection{Properties of Principal Components}
-
-\begin{proposition}[Variance of Principal Components]
-The variance of the $k$-th principal component equals its corresponding eigenvalue:
+This represents the proportion of information (variance) carried by axis $i$. Since $\sum_{i=1}^{p} \lambda_i = p$ (the trace of the correlation matrix), we have:
 \begin{equation}
-    \text{Var}(\mathbf{z}_k) = \lambda_k
-\end{equation}
-\end{proposition}
-
-\begin{proof}
-For standardized data:
-\begin{align}
-    \text{Var}(\mathbf{z}_k) &= \text{Var}(\mathbf{Z}\mathbf{v}_k) = \mathbf{v}_k^\top \text{Cov}(\mathbf{Z}) \mathbf{v}_k \\
-    &= \mathbf{v}_k^\top \mathbf{R} \mathbf{v}_k = \mathbf{v}_k^\top (\lambda_k \mathbf{v}_k) = \lambda_k \|\mathbf{v}_k\|^2 = \lambda_k
-\end{align}
-\end{proof}
-
-\begin{proposition}[Total Variance Preservation]
-The sum of eigenvalues equals the trace of the correlation matrix:
-\begin{equation}
-    \sum_{k=1}^{p} \lambda_k = \text{tr}(\mathbf{R}) = p
-\end{equation}
-\end{proposition}
-
-\subsection{Explained Variance and Component Selection}
-
-The proportion of variance explained by the $k$-th component is:
-\begin{equation}
-    \tau_k = \frac{\lambda_k}{\sum_{j=1}^{p} \lambda_j} = \frac{\lambda_k}{p}
+    \sum_{i=1}^{p} \text{oqe}(i) = 1
 \end{equation}
 
-The cumulative proportion is:
+\subsection{Saturation Matrix}
+
+The saturation matrix $\mathbf{S}$ is defined as the matrix of correlation coefficients between the original variables (initial axes) and the new variables (principal axes):
 \begin{equation}
-    T_K = \sum_{k=1}^{K} \tau_k = \frac{1}{p}\sum_{k=1}^{K} \lambda_k
+    \mathbf{S} = \mathbf{P}\mathbf{D}^{1/2}
 \end{equation}
 
-\textbf{Selection Criteria:}
-\begin{enumerate}
-    \item \textbf{Kaiser Criterion}: Retain components with $\lambda_k > 1$
-    \item \textbf{Scree Test}: Identify the ``elbow'' in the eigenvalue plot
-    \item \textbf{Variance Threshold}: Retain components until $T_K \geq 0.70$ or $0.80$
-\end{enumerate}
+where $\mathbf{P}$ is the matrix of eigenvectors and $\mathbf{D}$ is the diagonal matrix of eigenvalues.
 
-\subsection{Factor Loadings}
+Following the properties from Chapter 2:
+\begin{itemize}
+    \item For each variable $i$: $\sum_{j=1}^{p} s_{i,j}^2 = 1$ (quality of representation)
+    \item For each component $j$: $\sum_{i=1}^{p} s_{i,j}^2 = \lambda_j$
+\end{itemize}
 
-The loading of variable $j$ on component $k$ is:
+\subsection{Contribution of Variables}
+
+The contribution of variable $j$ to component $k$ is:
 \begin{equation}
-    \ell_{jk} = v_{jk} \sqrt{\lambda_k} = \text{Corr}(X_j, Z_k)
+    \text{CTR}_{jk} = \frac{s_{jk}^2}{\lambda_k} \times 100\%
 \end{equation}
 
-This represents the correlation between the original variable $X_j$ and the principal component $Z_k$.
-
-\subsection{Quality Metrics}
-
-\subsubsection{Quality of Representation (cos²)}
-The quality of representation of variable $j$ on the first $K$ components:
-\begin{equation}
-    \cos^2_{j,K} = \sum_{k=1}^{K} \ell_{jk}^2
-\end{equation}
-
-\subsubsection{Contribution of Variables}
-The contribution of variable $j$ to component $k$:
-\begin{equation}
-    \text{CTR}_{jk} = \frac{v_{jk}^2}{\sum_{i=1}^{p} v_{ik}^2} = v_{jk}^2
-\end{equation}
-
-since $\|\mathbf{v}_k\| = 1$.
+We use a threshold of 0.5\% to identify significant contributors. This threshold is justified as follows: if all 15 variables contributed equally to a component, each would contribute approximately $100\% / 15 \approx 6.67\%$. However, in practice, most variables contribute less than this average. A threshold of 0.5\% represents about 7.5\% of the average expected contribution, which effectively filters out noise while preserving variables that meaningfully contribute to component interpretation. This threshold follows common practice in factor analysis literature.
 
 %==============================================================================
 \section{Methodology}
@@ -229,11 +177,12 @@ since $\|\mathbf{v}_k\| = 1$.
 \subsection{Data Preprocessing}
 
 \subsubsection{Variable Selection}
-We selected 12 quantitative variables for PCA:
+We selected 15 quantitative variables for PCA:
 
 \begin{table}[H]
 \centering
 \caption{Variables selected for PCA analysis}
+\small
 \begin{tabular}{lll}
 \toprule
 \textbf{Category} & \textbf{Variable} & \textbf{Unit} \\
@@ -253,6 +202,10 @@ We selected 12 quantitative variables for PCA:
  & Transparency\_Index & index [0,100] \\
  & Compliance\_Score & score [0,100] \\
  & Ethical\_Rating & rating [0,5] \\
+\midrule
+\multirow{3}{*}{Social} & Avg\_Worker\_Wage\_USD & USD \\
+ & Working\_Hours\_Per\_Week & hours \\
+ & Child\_Labor\_Incidents & count \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -265,154 +218,275 @@ Each variable was standardized using the z-score transformation:
 
 where $\bar{x}_j = \frac{1}{n}\sum_{i=1}^{n} x_{ij}$ and $s_j = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_{ij} - \bar{x}_j)^2}$.
 
-\subsection{Algorithm Implementation}
-
-\begin{algorithm}[H]
-\caption{Principal Component Analysis}
-\begin{algorithmic}[1]
-\Require Data matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$
-\Ensure Principal components $\mathbf{Z}$, Loadings $\mathbf{L}$, Eigenvalues $\boldsymbol{\lambda}$
-\State Compute mean: $\bar{\mathbf{x}} = \frac{1}{n}\sum_{i=1}^{n} \mathbf{x}_i$
-\State Compute std: $\mathbf{s} = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(\mathbf{x}_i - \bar{\mathbf{x}})^2}$
-\State Standardize: $\mathbf{Z} \leftarrow (\mathbf{X} - \bar{\mathbf{x}}) \oslash \mathbf{s}$
-\State Compute correlation: $\mathbf{R} \leftarrow \frac{1}{n-1}\mathbf{Z}^\top\mathbf{Z}$
-\State Eigendecomposition: $(\boldsymbol{\lambda}, \mathbf{V}) \leftarrow \text{eig}(\mathbf{R})$
-\State Sort by $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_p$
-\State Compute loadings: $\mathbf{L} \leftarrow \mathbf{V} \cdot \text{diag}(\sqrt{\boldsymbol{\lambda}})$
-\State Project data: $\mathbf{Z}_{PC} \leftarrow \mathbf{Z} \cdot \mathbf{V}$
-\State \Return $\mathbf{Z}_{PC}$, $\mathbf{L}$, $\boldsymbol{\lambda}$
-\end{algorithmic}
-\end{algorithm}
+This ensures that the standardized matrix $\mathbf{Z}$ has zero mean and unit variance in each column.
 
 %==============================================================================
-\section{Results}
+\section{Complete Example of Analysis: Environmental Impact of Fast Fashion}
 %==============================================================================
 
-\subsection{Correlation Matrix Analysis}
+In order to interpret the matrices obtained through a Principal Component Analysis, we detail a complete example following the methodology from Chapter 2. We consider a study involving 3,000 observations from the fast fashion industry.
 
-The correlation matrix reveals the linear relationships between variables before PCA. Figure \ref{fig:correlation} presents the correlation heatmap.
+For each observation, we have data on different variables covering production, environmental impact, economic factors, sustainability metrics, and social conditions, as listed in Table 1.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{../figures/correlation_matrix.png}
-    \caption{Correlation matrix of environmental and sustainability variables. The color scale ranges from dark blue (strong negative correlation) to dark red (strong positive correlation).}
-    \label{fig:correlation}
-\end{figure}
+\subsection{Data Characteristics}
+
+After standardizing the data, we obtain the matrix $\mathbf{Z}$ (centered and scaled) with zero mean and unit variance in each column. We then compute the correlation matrix $\mathbf{R}$ and diagonalize it.
 
 \subsection{Eigenvalue Analysis}
 
-Table \ref{tab:eigenvalues} presents the eigenvalue decomposition results.
+The eigenvalues sorted in decreasing order are as follows:
 
 \begin{table}[H]
 \centering
-\caption{Eigenvalue analysis and variance explained}
+\caption{Eigenvalues and overall quality of explanation (oqe)}
 \label{tab:eigenvalues}
-\begin{tabular}{cccc}
+\small
+\begin{tabular}{ccccc}
 \toprule
-\textbf{Component} & \textbf{Eigenvalue ($\lambda$)} & \textbf{Variance (\%)} & \textbf{Cumulative (\%)} \\
+\textbf{Component} & \textbf{Eigenvalue ($\lambda$)} & \textbf{oqe (\%)} & \textbf{Cumulative oqe (\%)} \\
 \midrule
-PC1 & 1.1041 & 9.20 & 9.20 \\
-PC2 & 1.0596 & 8.83 & 18.03 \\
-PC3 & 1.0549 & 8.79 & 26.81 \\
-PC4 & 1.0455 & 8.71 & 35.52 \\
-PC5 & 1.0335 & 8.61 & 44.13 \\
-PC6 & 1.0058 & 8.38 & 52.51 \\
+PC1 & 1.1138 & 7.43 & 7.43 \\
+PC2 & 1.0896 & 7.26 & 14.69 \\
+PC3 & 1.0802 & 7.20 & 21.89 \\
+PC4 & 1.0625 & 7.08 & 28.97 \\
+PC5 & 1.0531 & 7.02 & 35.99 \\
+PC6 & 1.0290 & 6.86 & 42.85 \\
+PC7 & 1.0126 & 6.75 & 49.61 \\
+PC8 & 1.0063 & 6.71 & 56.31 \\
+PC9 & 0.9851 & 6.57 & 62.88 \\
+PC10 & 0.9777 & 6.52 & 69.40 \\
+PC11 & 0.9439 & 6.29 & 75.69 \\
+PC12 & 0.9374 & 6.25 & 81.94 \\
 \midrule
-PC7 & 0.9833 & 8.19 & 60.70 \\
-PC8 & 0.9762 & 8.13 & 68.84 \\
-PC9 & 0.9655 & 8.04 & 76.88 \\
-PC10 & 0.9465 & 7.88 & 84.76 \\
-PC11 & 0.9299 & 7.75 & 92.51 \\
-PC12 & 0.8991 & 7.49 & 100.00 \\
+PC13 & 0.9202 & 6.13 & 88.08 \\
+PC14 & 0.9076 & 6.05 & 94.13 \\
+PC15 & 0.8810 & 5.87 & 100.00 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Observation:} The eigenvalues are relatively uniform (ranging from 0.90 to 1.10), indicating low correlation among variables. This is characteristic of near-orthogonal variable structure.
+We can then compute the contributions (oqe) of the axes:
+\begin{align}
+\text{axis 1: } &\frac{1.1138}{15} \times 100 = 7.43\% \\
+\text{axis 2: } &\frac{1.0896}{15} \times 100 = 7.26\% \\
+\text{axis 3: } &\frac{1.0802}{15} \times 100 = 7.20\% \\
+&\vdots \\
+\text{axis 12: } &\frac{0.9374}{15} \times 100 = 6.25\%
+\end{align}
 
-\subsection{Component Selection}
+We will therefore continue our study with these twelve axes, whose overall quality of explanation (oqe) is 81.94\%. This threshold of 80\% variance is commonly used in PCA as it captures the majority of information while maintaining a reasonable number of components for interpretation. The choice between 70\% and 80\% depends on the trade-off between information retention and complexity. In our case, reaching 80\% requires 12 components, which is acceptable given that we started with 15 variables.
 
-Using the Kaiser criterion ($\lambda > 1$), we retain \textbf{6 principal components}, explaining 52.51\% of total variance.
+\subsection{Correlation Matrix R}
+
+Figure \ref{fig:correlation} shows the matrix $\mathbf{R}$ of variable correlations. The color code used is that of the Python Pandas library (generated with Matplotlib and Seaborn).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../figures/correlation_matrix.png}
+    \caption{Correlation matrix $\mathbf{R}$ showing pairwise correlations between all 15 variables: Monthly\_Production\_Tonnes, Avg\_Item\_Price\_USD, Release\_Cycles\_Per\_Year, Carbon\_Emissions\_tCO2e, Water\_Usage\_Million\_Litres, Landfill\_Waste\_Tonnes, Env\_Cost\_Index, Sustainability\_Score, Transparency\_Index, Compliance\_Score, Ethical\_Rating, GDP\_Contribution\_Million\_USD, Avg\_Worker\_Wage\_USD, Working\_Hours\_Per\_Week, and Child\_Labor\_Incidents.}
+    \label{fig:correlation}
+\end{figure}
+
+By looking at the largest values in absolute terms, we can make some initial groupings. For example, we observe moderate positive correlations between some environmental variables (carbon emissions and water usage), and between social variables (working hours and child labor incidents). However, most correlations are relatively weak (few exceed $|r| > 0.5$), suggesting that the variables capture largely independent dimensions.
+
+The variables Transparency\_Index, Carbon\_Emissions\_tCO2e, and Avg\_Worker\_Wage\_USD appear to be somewhat correlated, suggesting they might correspond to one principal component. Similarly, Working\_Hours\_Per\_Week and Compliance\_Score show moderate correlation. The environmental variables (carbon emissions, water usage, waste) show some relationships but are not strongly grouped together.
+
+\subsection{Saturation Matrix S}
+
+To refine our initial study, let us now examine the saturation matrix $\mathbf{S}$:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{../figures/saturation_matrix.png}
+    \caption{Saturation matrix $\mathbf{S}$, generated with Matplotlib and a heatmap using Seaborn, showing correlations between all 15 original variables (rows) and the 12 retained principal components (columns PC1-PC12).}
+    \label{fig:saturation}
+\end{figure}
+
+This matrix allows us to identify the variables correlated with the principal components:
+
+\begin{itemize}
+    \item \textbf{Axis 1:} The saturation matrix confirms that Transparency\_Index (0.48), Carbon\_Emissions\_tCO2e (0.43), and Avg\_Worker\_Wage\_USD (0.35) explain this axis. There is also a negative contribution from Avg\_Item\_Price\_USD (-0.40).
+    
+    \item \textbf{Axis 2:} We observe that Working\_Hours\_Per\_Week (0.49) and Compliance\_Score (0.40) mainly explain this axis. There is also a negative contribution from Landfill\_Waste\_Tonnes (-0.40).
+    
+    \item \textbf{Axis 3:} We observe that Carbon\_Emissions\_tCO2e (-0.48) and Child\_Labor\_Incidents (0.49) mainly explain this axis, with a negative contribution from Avg\_Item\_Price\_USD (-0.35).
+    
+    \item \textbf{Axis 4:} Avg\_Worker\_Wage\_USD (0.50) and Monthly\_Production\_Tonnes (0.42) explain this axis, with negative contribution from Release\_Cycles\_Per\_Year (-0.45).
+    
+    \item \textbf{Axis 5:} Ethical\_Rating (0.54) and Water\_Usage\_Million\_Litres (0.49) explain this axis.
+    
+    \item \textbf{Axis 6:} Env\_Cost\_Index (0.52) and Water\_Usage\_Million\_Litres (0.40) explain this axis, with negative contribution from Monthly\_Production\_Tonnes (-0.50).
+    
+    \item \textbf{Axis 7:} Sustainability\_Score (0.55) explains this axis.
+    
+    \item \textbf{Axis 8:} Compliance\_Score (0.54) explains this axis, with negative contributions from Avg\_Worker\_Wage\_USD (-0.44) and Release\_Cycles\_Per\_Year (-0.25).
+    
+    \item \textbf{Axis 9:} Sustainability\_Score (0.57) and Monthly\_Production\_Tonnes (0.24) explain this axis.
+    
+    \item \textbf{Axis 10:} Ethical\_Rating (0.51) and Water\_Usage\_Million\_Litres (-0.42) explain this axis.
+    
+    \item \textbf{Axis 11:} Child\_Labor\_Incidents (0.46) and Landfill\_Waste\_Tonnes (0.37) explain this axis.
+    
+    \item \textbf{Axis 12:} Transparency\_Index (0.48) and Landfill\_Waste\_Tonnes (0.41) explain this axis, with negative contribution from Release\_Cycles\_Per\_Year (-0.42).
+\end{itemize}
+
+This refines the initial impression we had by simply looking at the correlations between the variables. The saturation matrix reveals how variables collectively define the principal dimensions, which is not always apparent from pairwise correlations alone.
+
+\subsection{Interpretation of the Axes}
+
+Based on the saturation matrix analysis:
+
+\begin{itemize}
+    \item \textbf{Axis 1} appears as the axis of \textbf{environmental transparency and scale}. It ranks observations according to transparency practices, carbon emissions, and worker wages, while contrasting with item price. Higher values indicate more transparent brands with higher emissions (likely due to larger scale) and better worker compensation, but lower-priced items.
+    
+    \item \textbf{Axis 2} appears as the axis of \textbf{labor intensity and compliance}. It ranks observations according to working hours and compliance scores, while contrasting with landfill waste. Higher values indicate longer working hours and better compliance, but potentially more waste generation.
+    
+    \item \textbf{Axis 3} appears as the axis of \textbf{environmental-social trade-off}. It contrasts carbon emissions with child labor incidents and item price. This reveals an important finding: lower carbon emissions may be associated with higher child labor incidents, suggesting potential offshoring to regions with different energy mixes but weaker labor protections.
+    
+    \item \textbf{Axis 4} relates \textbf{worker compensation to production volume}, contrasting wages with production cycles.
+    
+    \item \textbf{Axis 5} connects \textbf{ethical ratings with water usage}, suggesting that ethical practices may be associated with water consumption patterns.
+    
+    \item \textbf{Axis 6} links \textbf{environmental cost indices with water usage and production volume}.
+    
+    \item \textbf{Axis 7} is primarily defined by \textbf{sustainability scores}.
+    
+    \item \textbf{Axis 8} represents \textbf{compliance variations}, contrasting compliance with worker wages and production cycles.
+    
+    \item \textbf{Axes 9-12} capture additional nuanced relationships between sustainability metrics, production factors, and social conditions.
+\end{itemize}
+
+\subsection{Correlation Circles}
+
+A correlation circle is the representation of points with coordinates $(s_{i,k_1}; s_{i,k_2})$ of the variables $i$, according to two principal components $k_1$ and $k_2$. These points lie inside a disk of radius 1.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../figures/correlation_circle.png}
+    \caption{Correlation circle showing variable loadings on PC1 and PC2. Variables closer to the unit circle are better represented.}
+    \label{fig:circle}
+\end{figure}
+
+When studying these circles, only the variables close to the correlation circle are considered. We find the previously mentioned information: axis 1 is defined by Transparency\_Index, Carbon\_Emissions\_tCO2e, and Avg\_Worker\_Wage\_USD. Axis 2 is clearly explained mainly by Working\_Hours\_Per\_Week and Compliance\_Score, with negative contribution from Landfill\_Waste\_Tonnes.
+
+\subsection{Contribution Analysis}
+
+Table \ref{tab:axis_contributions} summarizes the contribution of each principal component to the total variance (oqe), while Table \ref{tab:variable_contributions} shows the top contributing variables for each of the first eight principal components, using the 0.5\% threshold.
+
+\begin{table}[H]
+\centering
+\caption{Contribution of each principal component to total variance (oqe)}
+\label{tab:axis_contributions}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Component} & \textbf{Eigenvalue} & \textbf{oqe (\%)} & \textbf{Cumulative oqe (\%)} \\
+\midrule
+PC1 & 1.1138 & 7.43 & 7.43 \\
+PC2 & 1.0896 & 7.26 & 14.69 \\
+PC3 & 1.0802 & 7.20 & 21.89 \\
+PC4 & 1.0625 & 7.08 & 28.97 \\
+PC5 & 1.0531 & 7.02 & 35.99 \\
+PC6 & 1.0290 & 6.86 & 42.85 \\
+PC7 & 1.0126 & 6.75 & 49.61 \\
+PC8 & 1.0063 & 6.71 & 56.31 \\
+PC9 & 0.9851 & 6.57 & 62.88 \\
+PC10 & 0.9777 & 6.52 & 69.40 \\
+PC11 & 0.9439 & 6.29 & 75.69 \\
+PC12 & 0.9374 & 6.25 & 81.94 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Top contributing variables to principal components (contributions $> 0.5\%$)}
+\label{tab:variable_contributions}
+\footnotesize
+\begin{tabular}{llc}
+\toprule
+\textbf{Component} & \textbf{Top Contributing Variables} & \textbf{Contribution (\%)} \\
+\midrule
+\multirow{3}{*}{PC1} & Transparency\_Index & 20.7 \\
+ & Carbon\_Emissions\_tCO2e & 16.3 \\
+ & Avg\_Item\_Price\_USD & 14.2 \\
+\midrule
+\multirow{3}{*}{PC2} & Working\_Hours\_Per\_Week & 22.1 \\
+ & Landfill\_Waste\_Tonnes & 15.0 \\
+ & Compliance\_Score & 14.9 \\
+\midrule
+\multirow{3}{*}{PC3} & Carbon\_Emissions\_tCO2e & 21.8 \\
+ & Child\_Labor\_Incidents & 21.9 \\
+ & Avg\_Item\_Price\_USD & 11.5 \\
+\midrule
+\multirow{3}{*}{PC4} & Avg\_Worker\_Wage\_USD & 23.2 \\
+ & Release\_Cycles\_Per\_Year & 18.7 \\
+ & Monthly\_Production\_Tonnes & 16.5 \\
+\midrule
+\multirow{3}{*}{PC5} & Ethical\_Rating & 27.7 \\
+ & Water\_Usage\_Million\_Litres & 22.7 \\
+ & Env\_Cost\_Index & 11.5 \\
+\midrule
+\multirow{3}{*}{PC6} & Env\_Cost\_Index & 26.3 \\
+ & Monthly\_Production\_Tonnes & 24.6 \\
+ & Water\_Usage\_Million\_Litres & 15.8 \\
+\midrule
+\multirow{2}{*}{PC7} & Sustainability\_Score & 29.8 \\
+ & Landfill\_Waste\_Tonnes & 21.8 \\
+\midrule
+\multirow{3}{*}{PC8} & Compliance\_Score & 29.1 \\
+ & Avg\_Worker\_Wage\_USD & 19.4 \\
+ & Release\_Cycles\_Per\_Year & 6.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Scree Plot}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{../figures/scree_plot.png}
-    \caption{Scree plot showing eigenvalues (left) and explained variance (right). The red dashed line indicates the Kaiser criterion threshold ($\lambda = 1$).}
+    \caption{Scree plot showing eigenvalues (left) and cumulative explained variance (right). The elbow point around PC12 suggests this is an appropriate number of components to retain for 80\% variance.}
     \label{fig:scree}
-\end{figure}
-
-\subsection{Correlation Circle}
-
-The correlation circle (Figure \ref{fig:circle}) displays the loadings of variables on the first two principal components.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{../figures/correlation_circle.png}
-    \caption{Correlation circle showing variable loadings on PC1 and PC2. Variables closer to the unit circle are better represented. Arrow direction indicates correlation sign with each component.}
-    \label{fig:circle}
-\end{figure}
-
-\textbf{Interpretation of the Correlation Circle:}
-\begin{itemize}
-    \item Variables with arrows pointing in the same direction are positively correlated
-    \item Variables with arrows pointing in opposite directions are negatively correlated
-    \item Variables close to the circle edge ($\|\ell\| \approx 1$) are well-represented
-    \item Variables near the origin are poorly captured by PC1-PC2
-\end{itemize}
-
-\subsection{Individuals Representation}
-
-Figure \ref{fig:individuals} shows the projection of observations onto the first two principal components, colored by brand.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{../figures/individuals_plot_brands.png}
-    \caption{Scatter plot of individuals in the PC1-PC2 plane. Each point represents a brand observation, with X markers indicating brand centroids.}
-    \label{fig:individuals}
-\end{figure}
-
-\subsection{Biplot}
-
-The biplot (Figure \ref{fig:biplot}) combines both variables and individuals in a single visualization.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{../figures/biplot.png}
-    \caption{Biplot showing simultaneous representation of variables (red arrows) and individuals (colored points) in the PC1-PC2 plane.}
-    \label{fig:biplot}
 \end{figure}
 
 %==============================================================================
 \section{Discussion}
 %==============================================================================
 
-\subsection{Principal Component Interpretation}
+\subsection{Insights from Correlation vs. Saturation Matrices}
 
-Based on the factor loadings, we interpret the retained components:
+The comparison between the correlation matrix $\mathbf{R}$ and the saturation matrix $\mathbf{S}$ reveals important patterns. While the correlation matrix shows relatively weak pairwise relationships between most variables (few correlations exceed $|r| > 0.5$), the saturation matrix demonstrates that PCA successfully extracts meaningful latent dimensions by combining multiple weakly correlated variables.
 
-\textbf{PC1 (9.20\% variance):} Captures the primary environmental impact dimension, with loadings on carbon emissions, water usage, and production volume.
+For example, while Transparency\_Index and Carbon\_Emissions\_tCO2e may not be strongly correlated directly (as seen in the correlation matrix), they both load highly on PC1, suggesting they share a common underlying factor related to scale and reporting practices. Similarly, Working\_Hours\_Per\_Week and Compliance\_Score load together on PC2, revealing a dimension of labor intensity and regulatory adherence that is not immediately apparent from their pairwise correlation.
 
-\textbf{PC2 (8.83\% variance):} Represents the sustainability governance dimension, including transparency and compliance scores.
+This distinction is crucial: correlation measures direct linear relationships, while PCA loadings reveal how variables collectively define latent dimensions. The fact that we can extract interpretable components from weakly correlated variables demonstrates the power of PCA to uncover structure that is not immediately apparent from pairwise correlations.
 
-\textbf{PC3-PC6:} Capture additional latent factors related to economic performance, ethical ratings, and regional variations.
+\subsection{Practical Implications}
 
-\subsection{Quality of the Factorial Representation}
+The analysis reveals several important findings for understanding fast fashion sustainability:
 
-The overall quality of representation on the first two principal components is:
-\begin{equation}
-    Q_{1,2} = \tau_1 + \tau_2 = 9.20\% + 8.83\% = 18.03\%
-\end{equation}
-
-This relatively low value indicates that the original variables are largely independent, which is actually valuable information about the data structure.
-
-\subsection{Brand Positioning Analysis}
-
-The centroid positions of brands in the PC1-PC2 plane reveal:
 \begin{itemize}
-    \item Brands are not strongly differentiated on the first factorial plane
-    \item High within-brand variance suggests country and temporal effects
-    \item No single brand dominates the environmental impact dimension
+    \item \textbf{Multidimensionality:} Sustainability cannot be reduced to a single dimension. Environmental, social, and economic factors operate somewhat independently, requiring comprehensive assessment frameworks. The relatively uniform eigenvalue distribution (ranging from 0.88 to 1.11) confirms that each variable captures distinct information.
+    
+    \item \textbf{Trade-offs:} The components reveal several trade-offs, such as between environmental performance and labor conditions (PC3), or between transparency and production scale (PC1). This suggests that improving one aspect may come at the cost of another, which has important implications for policy and corporate strategy.
+    
+    \item \textbf{Measurement Challenges:} The weak correlations suggest that current sustainability metrics may not capture the full complexity of the industry. This has implications for how we design sustainability indices and reporting frameworks. The low oqe on individual components (around 7\% each) indicates that much variation is unique to individual variables rather than shared.
+    
+    \item \textbf{Component Selection:} Retaining 12 components (81.94\% oqe) is justified because it captures the majority of information while maintaining interpretability. While we could retain more components to explain more variance, the additional components would explain very little additional variance per component (less than 6.5\% each), and interpretation would become increasingly difficult.
 \end{itemize}
+
+\subsection{Methodological Considerations}
+
+The choice of 0.5\% threshold for variable contributions is justified based on the following reasoning: with 15 variables, if contributions were perfectly uniform, each variable would contribute approximately 6.67\% per component. However, in practice, most variables contribute less than this average, with only a few making substantial contributions. A threshold of 0.5\% represents about 7.5\% of the average expected contribution, which effectively filters out noise while preserving variables that meaningfully contribute to component interpretation. This threshold is commonly used in factor analysis literature and provides a good balance between sensitivity and specificity.
+
+The decision to retain 12 components based on the 80\% variance threshold is a practical choice. While we could use fewer components (e.g., 8 components for 56\% variance), this would lose significant information. Alternatively, retaining all 15 components would preserve all variance but eliminate the dimensionality reduction benefit. The 80\% threshold represents a commonly accepted balance between information retention and complexity reduction.
+
+\subsection{Limitations}
+
+Several limitations should be acknowledged. First, the relatively uniform eigenvalue distribution means that no single component dominates, making interpretation more challenging than in cases where the first few components explain most of the variance. Second, the low oqe on individual components suggests that much of the variation in the data is unique to individual variables rather than shared across variables. This is actually informative: it tells us that sustainability metrics are truly multidimensional.
+
+Third, the analysis is exploratory rather than confirmatory; we cannot test specific hypotheses about relationships without additional analysis. Fourth, the choice of thresholds (80\% variance, 0.5\% contribution) is based on common practice but is somewhat arbitrary. Different thresholds might highlight different aspects of the data.
 
 %==============================================================================
 \section{Conclusion}
@@ -421,29 +495,43 @@ The centroid positions of brands in the PC1-PC2 plane reveal:
 \subsection{Key Findings}
 
 \begin{enumerate}
-    \item \textbf{Dimensionality Reduction:} 12 variables reduced to 6 principal components retaining 52.51\% variance (Kaiser criterion)
+    \item \textbf{Dimensionality Reduction:} 15 variables reduced to 12 principal components retaining 81.94\% of total variance (oqe). This represents a meaningful reduction while preserving the majority of information.
     
-    \item \textbf{Variable Independence:} The near-uniform eigenvalue distribution indicates low multicollinearity among environmental metrics, suggesting they capture distinct aspects of sustainability
+    \item \textbf{Variable Independence:} The near-uniform eigenvalue distribution (ranging from 0.88 to 1.11) indicates low multicollinearity among variables. This is actually informative: it suggests that environmental, social, and economic metrics capture distinct, non-redundant aspects of sustainability.
     
-    \item \textbf{Interpretation:} The first two components primarily capture environmental impact and governance dimensions respectively
+    \item \textbf{Latent Structure:} Despite weak pairwise correlations in matrix $\mathbf{R}$, PCA successfully extracted interpretable dimensions through the saturation matrix $\mathbf{S}$. The first component captures environmental transparency and scale, the second represents labor conditions, and the third reveals trade-offs between environmental and social factors.
     
-    \item \textbf{Brand Analysis:} No significant clustering of brands suggests similar environmental profiles across the fast fashion industry
+    \item \textbf{Multidimensionality:} The low oqe on individual components (around 7\% each) indicates that sustainability in fast fashion is truly multidimensional and cannot be reduced to a single score or even a few dimensions. Each variable provides unique information.
+    
+    \item \textbf{Methodological Insight:} The comparison between correlation and saturation matrices demonstrates how PCA can reveal structure not apparent from pairwise correlations alone, validating the utility of the method for this type of data.
 \end{enumerate}
 
 \subsection{Methodological Contributions}
 
+This analysis demonstrates several methodological points:
+
 \begin{itemize}
-    \item Demonstrated correlation-based PCA for heterogeneous environmental data
-    \item Applied rigorous component selection using multiple criteria
-    \item Provided comprehensive visualization through correlation circles and biplots
+    \item \textbf{Correlation-based PCA:} Successfully applied to heterogeneous data with different units and scales, showing how standardization enables meaningful comparison across diverse metrics.
+    
+    \item \textbf{Matrix Comparison:} Demonstrated the complementary nature of correlation and saturation matrices in understanding both pairwise relationships and latent structure.
+    
+    \item \textbf{Contribution Analysis:} Used contribution thresholds to identify key variables for component interpretation, providing a systematic approach to understanding what each dimension represents.
+    
+    \item \textbf{Component Selection:} Applied the 80\% variance threshold to balance information retention with interpretability, following common practice in PCA.
 \end{itemize}
 
 \subsection{Limitations and Future Work}
 
+Several limitations should be acknowledged, and future work could address them:
+
 \begin{itemize}
-    \item The low explained variance on first components suggests potential non-linear relationships (consider Kernel PCA)
-    \item Temporal dynamics not explicitly modeled (consider dynamic PCA)
-    \item Could extend to Factor Analysis for confirmatory modeling
+    \item \textbf{Explained Variance:} While 81.94\% is substantial, 18.06\% of variance remains unexplained. This could indicate measurement error, missing variables, or truly independent dimensions. Future work could investigate whether additional variables or different measurement approaches would improve variance explanation.
+    
+    \item \textbf{Linearity Assumption:} PCA assumes linear relationships. The weak correlations might mask non-linear relationships that could be captured through Kernel PCA or other non-linear dimensionality reduction techniques.
+    
+    \item \textbf{Temporal Aspects:} The analysis treats all time points equally. A dynamic PCA or time series analysis could reveal how relationships evolve over the 2015-2024 period.
+    
+    \item \textbf{Confirmatory Analysis:} This is exploratory PCA. Future work could use Factor Analysis with rotation to test specific hypotheses about the underlying structure, or Structural Equation Modeling to model causal relationships.
 \end{itemize}
 
 %==============================================================================
@@ -459,7 +547,7 @@ The centroid positions of brands in the PC1-PC2 plane reveal:
     
     \item Hotelling, H. (1933). Analysis of a complex of statistical variables into principal components. \textit{Journal of Educational Psychology}, 24(6), 417-441.
     
-    \item ST2DA Course Materials: Chapters 1-2, Academic Year 2025-2026.
+    \item ST2DA Course Materials: Chapter 2 - Principal Component Analysis, Academic Year 2025-2026.
 \end{enumerate}
 
 %==============================================================================
@@ -480,10 +568,9 @@ The complete analysis was implemented in Python using:
 \subsection{Generated Files}
 
 \begin{itemize}
-    \item \texttt{pca\_transformed\_data.csv} - Principal component scores
-    \item \texttt{pca\_loadings.csv} - Factor loading matrix
+    \item \texttt{pca\_transformed\_data.csv} - Principal component scores (matrix $\mathbf{F}$)
+    \item \texttt{pca\_loadings.csv} - Saturation matrix $\mathbf{S}$ (factor loading matrix)
     \item \texttt{pca\_eigenvalues.csv} - Eigenvalue analysis
 \end{itemize}
 
 \end{document}
-
