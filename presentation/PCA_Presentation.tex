@@ -101,9 +101,9 @@
             \textbf{Overview:}
             \begin{itemize}
                 \item $n = 3000$ observations
-                \item $p = 12$ quantitative variables
-                \item 5 brands: Shein, Zara, H\&M, Forever 21, Uniqlo
-                \item 10 countries, 2015-2024
+                \item $p = 25$ total attributes
+                \item 15 quantitative for PCA
+                \item 5 brands, 10 countries
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -112,6 +112,7 @@
                 \item \textcolor{primary}{Production}: Volume, Cycles
                 \item \textcolor{secondary}{Environmental}: CO$_2$, Water, Waste
                 \item \textcolor{accent}{Sustainability}: Scores, Indices
+                \item \textcolor{primary!60!black}{Social}: Wages, Hours, Labor
             \end{itemize}
         \end{column}
     \end{columns}
@@ -121,6 +122,67 @@
     \begin{alertblock}{Why PCA?}
         Variables have \textbf{different scales} (tonnes, USD, \%) $\Rightarrow$ Use \textbf{correlation-based PCA}
     \end{alertblock}
+\end{frame}
+
+\begin{frame}{Complete Dataset Attributes}
+    \small
+    \begin{columns}
+        \begin{column}{0.48\textwidth}
+            \textbf{Identifiers (3):}
+            \begin{itemize}
+                \item Brand, Country, Year
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Production (2):}
+            \begin{itemize}
+                \item Monthly\_Production\_Tonnes
+                \item Release\_Cycles\_Per\_Year
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Environmental (3):}
+            \begin{itemize}
+                \item Carbon\_Emissions\_tCO2e
+                \item Water\_Usage\_Million\_Litres
+                \item Landfill\_Waste\_Tonnes
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Social (3):}
+            \begin{itemize}
+                \item Avg\_Worker\_Wage\_USD
+                \item Working\_Hours\_Per\_Week
+                \item Child\_Labor\_Incidents
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \textbf{Economic (2):}
+            \begin{itemize}
+                \item Avg\_Item\_Price\_USD
+                \item GDP\_Contribution\_Million\_USD
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Consumer (4):}
+            \begin{itemize}
+                \item Return\_Rate\_Percent
+                \item Avg\_Spend\_Per\_Customer\_USD
+                \item Shopping\_Frequency\_Per\_Year
+                \item Social media mentions (2)
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Sustainability (5):}
+            \begin{itemize}
+                \item Env\_Cost\_Index
+                \item Sustainability\_Score
+                \item Transparency\_Index
+                \item Compliance\_Score
+                \item Ethical\_Rating
+            \end{itemize}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 %==============================================================================
@@ -245,24 +307,24 @@
     \vspace{0.3cm}
     
     \begin{enumerate}
-        \item \textbf{Kaiser Criterion} (1960):
-        \begin{equation*}
-            \text{Retain PC}_k \text{ if } \lambda_k > 1
-        \end{equation*}
-        \textit{Rationale: Component should explain more than one original variable}
-        
-        \vspace{0.3cm}
-        
         \item \textbf{Scree Test} (Cattell, 1966):
         \begin{equation*}
             \text{Find ``elbow'' in } \{\lambda_1, \lambda_2, \ldots, \lambda_p\}
         \end{equation*}
+        \textit{Rationale: Identify where eigenvalues level off}
         
         \vspace{0.3cm}
         
         \item \textbf{Variance Threshold}:
         \begin{equation*}
             \text{Retain } K \text{ s.t. } \sum_{k=1}^{K} \frac{\lambda_k}{p} \geq 0.70 \text{ or } 0.80
+        \end{equation*}
+        
+        \vspace{0.3cm}
+        
+        \item \textbf{Interpretability}:
+        \begin{equation*}
+            \text{Components should be interpretable in domain context}
         \end{equation*}
     \end{enumerate}
 \end{frame}
@@ -292,21 +354,22 @@
                 \toprule
                 \textbf{PC} & $\boldsymbol{\lambda}$ & \textbf{Cum.\%} \\
                 \midrule
-                1 & 1.10 & 9.2 \\
-                2 & 1.06 & 18.0 \\
-                3 & 1.05 & 26.8 \\
-                4 & 1.05 & 35.5 \\
-                5 & 1.03 & 44.1 \\
-                \textcolor{secondary}{6} & \textcolor{secondary}{1.01} & \textcolor{secondary}{52.5} \\
+                1 & 1.11 & 7.4 \\
+                2 & 1.09 & 14.7 \\
+                3 & 1.08 & 21.9 \\
+                4 & 1.06 & 29.0 \\
+                5 & 1.04 & 35.9 \\
+                6 & 1.03 & 42.8 \\
+                7 & 1.01 & 49.5 \\
+                \textcolor{secondary}{8} & \textcolor{secondary}{1.00} & \textcolor{secondary}{56.2} \\
                 \midrule
-                7 & 0.98 & 60.7 \\
                 $\vdots$ & $\vdots$ & $\vdots$ \\
                 \bottomrule
             \end{tabular}
             
             \vspace{0.3cm}
             
-            \textcolor{primary}{\textbf{Kaiser: 6 components}}
+            \textcolor{primary}{\textbf{Scree: 8 components}}
         \end{column}
     \end{columns}
 \end{frame}
@@ -356,27 +419,27 @@
 %==============================================================================
 
 \begin{frame}{Component Interpretation}
-    \begin{block}{PC1 (9.20\% variance)}
+    \begin{block}{PC1 (7.43\% variance)}
         \textbf{Environmental Impact Dimension}
         \begin{itemize}
-            \item High loadings: Carbon emissions, Water usage, Production volume
-            \item Interpretation: Overall environmental footprint
+            \item High loadings: Transparency, Carbon emissions, Worker wages
+            \item Interpretation: Overall environmental and social footprint
         \end{itemize}
     \end{block}
     
     \vspace{0.3cm}
     
-    \begin{block}{PC2 (8.83\% variance)}
-        \textbf{Sustainability Governance Dimension}
+    \begin{block}{PC2 (7.26\% variance)}
+        \textbf{Labor \& Compliance Dimension}
         \begin{itemize}
-            \item High loadings: Transparency index, Compliance score
-            \item Interpretation: Corporate governance quality
+            \item High loadings: Working hours, Landfill waste, Compliance score
+            \item Interpretation: Labor conditions and environmental compliance
         \end{itemize}
     \end{block}
     
     \vspace{0.3cm}
     
-    \textbf{Total variance explained by PC1-PC2:} $18.03\%$
+    \textbf{Total variance explained by PC1-PC2:} $14.69\%$
 \end{frame}
 
 \begin{frame}{Why Low Explained Variance?}
@@ -410,8 +473,8 @@
     \begin{enumerate}
         \item \textbf{Dimensionality Reduction:}
         \begin{itemize}
-            \item 12 variables $\rightarrow$ 6 components (Kaiser)
-            \item 52.51\% variance retained
+            \item 15 variables $\rightarrow$ 8 components (Scree + Variance)
+            \item $\approx$56\% variance retained
         \end{itemize}
         
         \vspace{0.3cm}
@@ -419,7 +482,7 @@
         \item \textbf{Variable Independence:}
         \begin{itemize}
             \item Low correlations $\Rightarrow$ metrics capture distinct aspects
-            \item No major redundancy in environmental data
+            \item Environmental and social variables both contribute unique information
         \end{itemize}
         
         \vspace{0.3cm}
@@ -427,7 +490,7 @@
         \item \textbf{Brand Analysis:}
         \begin{itemize}
             \item No significant differentiation between brands
-            \item Fast fashion industry has homogeneous environmental profile
+            \item Fast fashion industry has homogeneous environmental \& social profile
         \end{itemize}
     \end{enumerate}
 \end{frame}
@@ -443,7 +506,7 @@
             \node[box, right=of data] (std) {Standardize\\$z = \frac{x-\mu}{\sigma}$};
             \node[box, right=of std] (corr) {Correlation\\$\mathbf{R} = \mathbf{Z}^\top\mathbf{Z}$};
             \node[box, below=of corr] (eig) {Eigendecomp.\\$\mathbf{R}\mathbf{v}=\lambda\mathbf{v}$};
-            \node[box, left=of eig] (select) {Select $K$\\(Kaiser)};
+            \node[box, left=of eig] (select) {Select $K$\\(Scree)};
             \node[box, left=of select] (project) {Project\\$\mathbf{Z}_{PC}=\mathbf{ZV}$};
             
             \draw[arrow] (data) -- (std);
@@ -519,23 +582,23 @@
 \begin{frame}{Backup: Complete Eigenvalue Table}
     \begin{center}
         \small
-        \begin{tabular}{ccccc}
+        \begin{tabular}{cccc}
             \toprule
-            \textbf{PC} & $\boldsymbol{\lambda}$ & \textbf{Var.\%} & \textbf{Cum.\%} & \textbf{Kaiser} \\
+            \textbf{PC} & $\boldsymbol{\lambda}$ & \textbf{Var.\%} & \textbf{Cum.\%} \\
             \midrule
-            1 & 1.1041 & 9.20 & 9.20 & \checkmark \\
-            2 & 1.0596 & 8.83 & 18.03 & \checkmark \\
-            3 & 1.0549 & 8.79 & 26.81 & \checkmark \\
-            4 & 1.0455 & 8.71 & 35.52 & \checkmark \\
-            5 & 1.0335 & 8.61 & 44.13 & \checkmark \\
-            6 & 1.0058 & 8.38 & 52.51 & \checkmark \\
+            1 & 1.1147 & 7.43 & 7.43 \\
+            2 & 1.0894 & 7.26 & 14.69 \\
+            3 & 1.0799 & 7.20 & 21.89 \\
+            4 & 1.0596 & 7.06 & 28.95 \\
+            5 & 1.0448 & 6.97 & 35.92 \\
+            6 & 1.0283 & 6.86 & 42.78 \\
+            7 & 1.0107 & 6.74 & 49.52 \\
+            8 & 0.9988 & 6.66 & 56.18 \\
             \midrule
-            7 & 0.9833 & 8.19 & 60.70 & \\
-            8 & 0.9762 & 8.13 & 68.84 & \\
-            9 & 0.9655 & 8.04 & 76.88 & \\
-            10 & 0.9465 & 7.88 & 84.76 & \\
-            11 & 0.9299 & 7.75 & 92.51 & \\
-            12 & 0.8991 & 7.49 & 100.00 & \\
+            9 & 0.9834 & 6.56 & 62.74 \\
+            10 & 0.9721 & 6.48 & 69.22 \\
+            11 & 0.9602 & 6.40 & 75.62 \\
+            12-15 & ... & ... & 100.00 \\
             \bottomrule
         \end{tabular}
     \end{center}

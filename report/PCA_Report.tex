@@ -63,7 +63,7 @@
 \thispagestyle{empty}
 
 \begin{abstract}
-This report presents a comprehensive Principal Component Analysis (PCA) applied to environmental sustainability data from the fast fashion industry. We analyze 3,000 observations across 12 quantitative variables measuring production volumes, carbon emissions, water usage, and sustainability metrics from five major brands. Using correlation-based PCA on standardized data, we identify the principal factorial axes, calculate explained variance, and interpret the underlying latent factors. Our analysis reveals the dimensional structure of environmental impact in fast fashion and provides actionable insights for sustainability assessment.
+This report presents a comprehensive Principal Component Analysis (PCA) applied to environmental sustainability data from the fast fashion industry. We analyze 3,000 observations across 15 quantitative variables measuring production volumes, carbon emissions, water usage, sustainability metrics, and social conditions from five major brands. Using correlation-based PCA on standardized data, we identify the principal factorial axes, calculate explained variance, and interpret the underlying latent factors. Our analysis reveals the dimensional structure of environmental impact in fast fashion and provides actionable insights for sustainability assessment.
 \end{abstract}
 
 \tableofcontents
@@ -99,9 +99,59 @@ The primary objectives of this analysis are:
 We utilize the \textbf{True Cost of Fast Fashion} dataset containing:
 \begin{itemize}
     \item \textbf{Observations}: $n = 3000$ records from 5 brands across 10 countries (2015-2024)
-    \item \textbf{Variables}: $p = 12$ quantitative environmental and sustainability metrics
+    \item \textbf{Variables}: $p = 25$ total attributes (15 quantitative used for PCA)
     \item \textbf{Brands}: Shein, Zara, H\&M, Forever 21, Uniqlo
 \end{itemize}
+
+\subsubsection{Complete Attribute Description}
+
+Table \ref{tab:attributes} provides a comprehensive description of all 25 attributes available in the dataset.
+
+\begin{table}[H]
+\centering
+\caption{Complete description of all dataset attributes}
+\label{tab:attributes}
+\small
+\begin{tabular}{clll}
+\toprule
+\textbf{\#} & \textbf{Variable Name} & \textbf{Type} & \textbf{Description} \\
+\midrule
+1 & Brand & Categorical & Fast fashion brand name \\
+2 & Country & Categorical & Country of operation \\
+3 & Year & Integer & Year of observation (2015-2024) \\
+\midrule
+4 & Monthly\_Production\_Tonnes & Float & Monthly production volume (tonnes) \\
+5 & Avg\_Item\_Price\_USD & Float & Average retail price per item (USD) \\
+6 & Release\_Cycles\_Per\_Year & Integer & New collection releases per year \\
+\midrule
+7 & Carbon\_Emissions\_tCO2e & Float & Annual carbon emissions (tonnes CO$_2$e) \\
+8 & Water\_Usage\_Million\_Litres & Float & Annual water consumption (ML) \\
+9 & Landfill\_Waste\_Tonnes & Float & Annual waste to landfill (tonnes) \\
+\midrule
+10 & Avg\_Worker\_Wage\_USD & Float & Average monthly worker wage (USD) \\
+11 & Working\_Hours\_Per\_Week & Integer & Average weekly working hours \\
+12 & Child\_Labor\_Incidents & Integer & Reported child labor incidents \\
+\midrule
+13 & Return\_Rate\_Percent & Float & Product return rate (\%) \\
+14 & Avg\_Spend\_Per\_Customer\_USD & Float & Average customer spending (USD) \\
+15 & Shopping\_Frequency\_Per\_Year & Integer & Customer shopping frequency \\
+\midrule
+16 & Instagram\_Mentions\_Thousands & Integer & Social mentions on Instagram (K) \\
+17 & TikTok\_Mentions\_Thousands & Integer & Social mentions on TikTok (K) \\
+18 & Sentiment\_Score & Float & Social sentiment score [-1, 1] \\
+19 & Social\_Sentiment\_Label & Categorical & Sentiment classification \\
+\midrule
+20 & GDP\_Contribution\_Million\_USD & Float & Economic contribution (M USD) \\
+21 & Env\_Cost\_Index & Float & Environmental cost index [0, 1] \\
+22 & Sustainability\_Score & Float & Sustainability rating [0, 100] \\
+23 & Transparency\_Index & Float & Corporate transparency [0, 100] \\
+24 & Compliance\_Score & Float & Regulatory compliance [0, 100] \\
+25 & Ethical\_Rating & Float & Ethical practices rating [0, 5] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Note:} For PCA analysis, we use 15 quantitative variables from categories: Production (2), Environmental (3), Social (3), Economic (2), and Sustainability (5).
 
 %==============================================================================
 \section{Mathematical Framework}
@@ -192,9 +242,9 @@ The cumulative proportion is:
 
 \textbf{Selection Criteria:}
 \begin{enumerate}
-    \item \textbf{Kaiser Criterion}: Retain components with $\lambda_k > 1$
     \item \textbf{Scree Test}: Identify the ``elbow'' in the eigenvalue plot
     \item \textbf{Variance Threshold}: Retain components until $T_K \geq 0.70$ or $0.80$
+    \item \textbf{Interpretability}: Consider domain knowledge and component interpretability
 \end{enumerate}
 
 \subsection{Factor Loadings}
@@ -229,7 +279,7 @@ since $\|\mathbf{v}_k\| = 1$.
 \subsection{Data Preprocessing}
 
 \subsubsection{Variable Selection}
-We selected 12 quantitative variables for PCA:
+We selected 15 quantitative variables for PCA:
 
 \begin{table}[H]
 \centering
@@ -253,6 +303,10 @@ We selected 12 quantitative variables for PCA:
  & Transparency\_Index & index [0,100] \\
  & Compliance\_Score & score [0,100] \\
  & Ethical\_Rating & rating [0,5] \\
+\midrule
+\multirow{3}{*}{Social} & Avg\_Worker\_Wage\_USD & USD \\
+ & Working\_Hours\_Per\_Week & hours \\
+ & Child\_Labor\_Incidents & count \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -301,7 +355,7 @@ The correlation matrix reveals the linear relationships between variables before
 
 \subsection{Eigenvalue Analysis}
 
-Table \ref{tab:eigenvalues} presents the eigenvalue decomposition results.
+Table \ref{tab:eigenvalues} presents the eigenvalue decomposition results for all 15 principal components.
 
 \begin{table}[H]
 \centering
@@ -311,33 +365,36 @@ Table \ref{tab:eigenvalues} presents the eigenvalue decomposition results.
 \toprule
 \textbf{Component} & \textbf{Eigenvalue ($\lambda$)} & \textbf{Variance (\%)} & \textbf{Cumulative (\%)} \\
 \midrule
-PC1 & 1.1041 & 9.20 & 9.20 \\
-PC2 & 1.0596 & 8.83 & 18.03 \\
-PC3 & 1.0549 & 8.79 & 26.81 \\
-PC4 & 1.0455 & 8.71 & 35.52 \\
-PC5 & 1.0335 & 8.61 & 44.13 \\
-PC6 & 1.0058 & 8.38 & 52.51 \\
+PC1 & 1.1147 & 7.43 & 7.43 \\
+PC2 & 1.0894 & 7.26 & 14.69 \\
+PC3 & 1.0799 & 7.20 & 21.89 \\
+PC4 & 1.0596 & 7.06 & 28.95 \\
+PC5 & 1.0448 & 6.97 & 35.92 \\
+PC6 & 1.0283 & 6.86 & 42.78 \\
+PC7 & 1.0107 & 6.74 & 49.52 \\
+PC8 & 0.9988 & 6.66 & 56.18 \\
 \midrule
-PC7 & 0.9833 & 8.19 & 60.70 \\
-PC8 & 0.9762 & 8.13 & 68.84 \\
-PC9 & 0.9655 & 8.04 & 76.88 \\
-PC10 & 0.9465 & 7.88 & 84.76 \\
-PC11 & 0.9299 & 7.75 & 92.51 \\
-PC12 & 0.8991 & 7.49 & 100.00 \\
+PC9 & 0.9834 & 6.56 & 62.74 \\
+PC10 & 0.9721 & 6.48 & 69.22 \\
+PC11 & 0.9602 & 6.40 & 75.62 \\
+PC12 & 0.9489 & 6.33 & 81.95 \\
+PC13 & 0.9378 & 6.25 & 88.20 \\
+PC14 & 0.9246 & 6.16 & 94.36 \\
+PC15 & 0.8468 & 5.64 & 100.00 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Observation:} The eigenvalues are relatively uniform (ranging from 0.90 to 1.10), indicating low correlation among variables. This is characteristic of near-orthogonal variable structure.
+\textbf{Observation:} The eigenvalues are relatively uniform (ranging from 0.85 to 1.11), indicating low correlation among variables. This is characteristic of near-orthogonal variable structure.
 
 \subsection{Component Selection}
 
-Using the Kaiser criterion ($\lambda > 1$), we retain \textbf{6 principal components}, explaining 52.51\% of total variance.
+Using the variance threshold criterion, we retain \textbf{8 principal components} to achieve approximately 56\% of explained variance. Additionally, examining the scree plot helps identify the optimal number of components.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{../figures/scree_plot.png}
-    \caption{Scree plot showing eigenvalues (left) and explained variance (right). The red dashed line indicates the Kaiser criterion threshold ($\lambda = 1$).}
+    \caption{Scree plot showing eigenvalues (left) and cumulative explained variance (right). The elbow point helps determine the optimal number of components.}
     \label{fig:scree}
 \end{figure}
 
@@ -390,20 +447,20 @@ The biplot (Figure \ref{fig:biplot}) combines both variables and individuals in 
 
 Based on the factor loadings, we interpret the retained components:
 
-\textbf{PC1 (9.20\% variance):} Captures the primary environmental impact dimension, with loadings on carbon emissions, water usage, and production volume.
+\textbf{PC1 (7.43\% variance):} Captures the primary environmental impact dimension, with loadings on carbon emissions, transparency, and worker conditions.
 
-\textbf{PC2 (8.83\% variance):} Represents the sustainability governance dimension, including transparency and compliance scores.
+\textbf{PC2 (7.26\% variance):} Represents the labor and compliance dimension, including working hours, landfill waste, and compliance scores.
 
-\textbf{PC3-PC6:} Capture additional latent factors related to economic performance, ethical ratings, and regional variations.
+\textbf{PC3-PC8:} Capture additional latent factors related to sustainability governance, economic performance, ethical ratings, social conditions, and regional variations.
 
 \subsection{Quality of the Factorial Representation}
 
 The overall quality of representation on the first two principal components is:
 \begin{equation}
-    Q_{1,2} = \tau_1 + \tau_2 = 9.20\% + 8.83\% = 18.03\%
+    Q_{1,2} = \tau_1 + \tau_2 = 7.43\% + 7.26\% = 14.69\%
 \end{equation}
 
-This relatively low value indicates that the original variables are largely independent, which is actually valuable information about the data structure.
+This relatively low value indicates that the original variables are largely independent, which is actually valuable information about the data structure. The addition of social variables (worker wages, working hours, child labor incidents) further enriches the multidimensional nature of sustainability assessment.
 
 \subsection{Brand Positioning Analysis}
 
@@ -421,13 +478,15 @@ The centroid positions of brands in the PC1-PC2 plane reveal:
 \subsection{Key Findings}
 
 \begin{enumerate}
-    \item \textbf{Dimensionality Reduction:} 12 variables reduced to 6 principal components retaining 52.51\% variance (Kaiser criterion)
+    \item \textbf{Dimensionality Reduction:} 15 variables reduced to 8 principal components retaining approximately 56\% variance using scree plot and variance threshold criteria
     
-    \item \textbf{Variable Independence:} The near-uniform eigenvalue distribution indicates low multicollinearity among environmental metrics, suggesting they capture distinct aspects of sustainability
+    \item \textbf{Variable Independence:} The near-uniform eigenvalue distribution indicates low multicollinearity among environmental and social metrics, suggesting they capture distinct aspects of sustainability
     
-    \item \textbf{Interpretation:} The first two components primarily capture environmental impact and governance dimensions respectively
+    \item \textbf{Interpretation:} The first two components primarily capture environmental impact and labor/compliance dimensions respectively
     
-    \item \textbf{Brand Analysis:} No significant clustering of brands suggests similar environmental profiles across the fast fashion industry
+    \item \textbf{Social Dimension:} The inclusion of worker wage, working hours, and child labor variables provides a more comprehensive view of the true cost of fast fashion
+    
+    \item \textbf{Brand Analysis:} No significant clustering of brands suggests similar environmental and social profiles across the fast fashion industry
 \end{enumerate}
 
 \subsection{Methodological Contributions}
