@@ -1,0 +1,489 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Page setup
+\geometry{margin=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+% Colors
+\definecolor{primary}{RGB}{46,134,171}
+\definecolor{secondary}{RGB}{162,59,114}
+
+% Header/Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{primary}{ST2DA-I2 | PCA Project}}
+\fancyhead[R]{\textcolor{primary}{2025-2026}}
+\fancyfoot[C]{\thepage}
+
+% Theorem environments
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}{Proposition}[section]
+
+% Title
+\title{
+    \vspace{-1cm}
+    \textcolor{primary}{\rule{\linewidth}{1pt}}\\[0.5cm]
+    \textbf{Principal Component Analysis}\\[0.3cm]
+    \Large Environmental Impact Assessment of the Fast Fashion Industry\\[0.5cm]
+    \textcolor{primary}{\rule{\linewidth}{1pt}}
+}
+
+\author{
+    ST2DA-I2 Project\\
+    Academic Year 2025-2026
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+This report presents a comprehensive Principal Component Analysis (PCA) applied to environmental sustainability data from the fast fashion industry. We analyze 3,000 observations across 12 quantitative variables measuring production volumes, carbon emissions, water usage, and sustainability metrics from five major brands. Using correlation-based PCA on standardized data, we identify the principal factorial axes, calculate explained variance, and interpret the underlying latent factors. Our analysis reveals the dimensional structure of environmental impact in fast fashion and provides actionable insights for sustainability assessment.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Introduction}
+%==============================================================================
+
+\subsection{Background and Motivation}
+
+Principal Component Analysis (PCA), introduced by Karl Pearson in 1901 and later developed by Harold Hotelling in 1933, is a fundamental technique in multivariate statistical analysis. It serves as the cornerstone of dimensionality reduction, transforming a set of potentially correlated variables into a set of linearly uncorrelated variables called \textit{principal components}.
+
+The fast fashion industry presents a compelling case study for PCA application due to:
+\begin{itemize}
+    \item High-dimensional environmental data with multiple correlated metrics
+    \item Need for synthetic indicators to assess sustainability performance
+    \item Complex relationships between production, emissions, and social factors
+\end{itemize}
+
+\subsection{Objectives}
+
+The primary objectives of this analysis are:
+\begin{enumerate}
+    \item Implement PCA on environmental sustainability data
+    \item Identify and interpret principal components
+    \item Reduce dimensionality while preserving maximum variance
+    \item Visualize brands and countries in the factorial space
+\end{enumerate}
+
+\subsection{Dataset Description}
+
+We utilize the \textbf{True Cost of Fast Fashion} dataset containing:
+\begin{itemize}
+    \item \textbf{Observations}: $n = 3000$ records from 5 brands across 10 countries (2015-2024)
+    \item \textbf{Variables}: $p = 12$ quantitative environmental and sustainability metrics
+    \item \textbf{Brands}: Shein, Zara, H\&M, Forever 21, Uniqlo
+\end{itemize}
+
+%==============================================================================
+\section{Mathematical Framework}
+%==============================================================================
+
+\subsection{Problem Formulation}
+
+Let $\mathbf{X}$ be a $n \times p$ data matrix where each row represents an observation and each column represents a variable. The goal of PCA is to find a new coordinate system such that the greatest variance by any projection of the data lies on the first axis (first principal component), the second greatest variance on the second axis, and so on.
+
+\begin{definition}[Principal Components]
+Given a centered data matrix $\mathbf{X}_c = \mathbf{X} - \mathbf{\bar{X}}$, the $k$-th principal component is defined as:
+\begin{equation}
+    \mathbf{z}_k = \mathbf{X}_c \mathbf{v}_k
+\end{equation}
+where $\mathbf{v}_k$ is the $k$-th eigenvector of the covariance (or correlation) matrix.
+\end{definition}
+
+\subsection{Choice of Matrix: Covariance vs. Correlation}
+
+\subsubsection{Covariance Matrix}
+The sample covariance matrix is defined as:
+\begin{equation}
+    \mathbf{S} = \frac{1}{n-1} \mathbf{X}_c^\top \mathbf{X}_c
+\end{equation}
+
+where element $s_{jk} = \frac{1}{n-1}\sum_{i=1}^{n}(x_{ij} - \bar{x}_j)(x_{ik} - \bar{x}_k)$.
+
+\subsubsection{Correlation Matrix}
+For standardized data $\mathbf{Z}$ where $z_{ij} = \frac{x_{ij} - \bar{x}_j}{s_j}$, the correlation matrix is:
+\begin{equation}
+    \mathbf{R} = \frac{1}{n-1} \mathbf{Z}^\top \mathbf{Z}
+\end{equation}
+
+where element $r_{jk} = \frac{s_{jk}}{s_j s_k}$ is the Pearson correlation coefficient.
+
+\textbf{Justification for Correlation-based PCA:} Our variables have heterogeneous units (tonnes, USD, percentages, indices). Using the covariance matrix would cause variables with larger scales to dominate the analysis. Standardization ensures equal contribution from all variables.
+
+\subsection{Spectral Decomposition}
+
+\begin{theorem}[Spectral Theorem]
+For a symmetric positive semi-definite matrix $\mathbf{R} \in \mathbb{R}^{p \times p}$, there exists an orthogonal matrix $\mathbf{V}$ and a diagonal matrix $\mathbf{\Lambda}$ such that:
+\begin{equation}
+    \mathbf{R} = \mathbf{V} \mathbf{\Lambda} \mathbf{V}^\top
+\end{equation}
+where $\mathbf{\Lambda} = \text{diag}(\lambda_1, \lambda_2, \ldots, \lambda_p)$ with $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_p \geq 0$.
+\end{theorem}
+
+The eigenvalue equation is:
+\begin{equation}
+    \mathbf{R} \mathbf{v}_k = \lambda_k \mathbf{v}_k, \quad k = 1, \ldots, p
+\end{equation}
+
+\subsection{Properties of Principal Components}
+
+\begin{proposition}[Variance of Principal Components]
+The variance of the $k$-th principal component equals its corresponding eigenvalue:
+\begin{equation}
+    \text{Var}(\mathbf{z}_k) = \lambda_k
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+For standardized data:
+\begin{align}
+    \text{Var}(\mathbf{z}_k) &= \text{Var}(\mathbf{Z}\mathbf{v}_k) = \mathbf{v}_k^\top \text{Cov}(\mathbf{Z}) \mathbf{v}_k \\
+    &= \mathbf{v}_k^\top \mathbf{R} \mathbf{v}_k = \mathbf{v}_k^\top (\lambda_k \mathbf{v}_k) = \lambda_k \|\mathbf{v}_k\|^2 = \lambda_k
+\end{align}
+\end{proof}
+
+\begin{proposition}[Total Variance Preservation]
+The sum of eigenvalues equals the trace of the correlation matrix:
+\begin{equation}
+    \sum_{k=1}^{p} \lambda_k = \text{tr}(\mathbf{R}) = p
+\end{equation}
+\end{proposition}
+
+\subsection{Explained Variance and Component Selection}
+
+The proportion of variance explained by the $k$-th component is:
+\begin{equation}
+    \tau_k = \frac{\lambda_k}{\sum_{j=1}^{p} \lambda_j} = \frac{\lambda_k}{p}
+\end{equation}
+
+The cumulative proportion is:
+\begin{equation}
+    T_K = \sum_{k=1}^{K} \tau_k = \frac{1}{p}\sum_{k=1}^{K} \lambda_k
+\end{equation}
+
+\textbf{Selection Criteria:}
+\begin{enumerate}
+    \item \textbf{Kaiser Criterion}: Retain components with $\lambda_k > 1$
+    \item \textbf{Scree Test}: Identify the ``elbow'' in the eigenvalue plot
+    \item \textbf{Variance Threshold}: Retain components until $T_K \geq 0.70$ or $0.80$
+\end{enumerate}
+
+\subsection{Factor Loadings}
+
+The loading of variable $j$ on component $k$ is:
+\begin{equation}
+    \ell_{jk} = v_{jk} \sqrt{\lambda_k} = \text{Corr}(X_j, Z_k)
+\end{equation}
+
+This represents the correlation between the original variable $X_j$ and the principal component $Z_k$.
+
+\subsection{Quality Metrics}
+
+\subsubsection{Quality of Representation (cos²)}
+The quality of representation of variable $j$ on the first $K$ components:
+\begin{equation}
+    \cos^2_{j,K} = \sum_{k=1}^{K} \ell_{jk}^2
+\end{equation}
+
+\subsubsection{Contribution of Variables}
+The contribution of variable $j$ to component $k$:
+\begin{equation}
+    \text{CTR}_{jk} = \frac{v_{jk}^2}{\sum_{i=1}^{p} v_{ik}^2} = v_{jk}^2
+\end{equation}
+
+since $\|\mathbf{v}_k\| = 1$.
+
+%==============================================================================
+\section{Methodology}
+%==============================================================================
+
+\subsection{Data Preprocessing}
+
+\subsubsection{Variable Selection}
+We selected 12 quantitative variables for PCA:
+
+\begin{table}[H]
+\centering
+\caption{Variables selected for PCA analysis}
+\begin{tabular}{lll}
+\toprule
+\textbf{Category} & \textbf{Variable} & \textbf{Unit} \\
+\midrule
+\multirow{2}{*}{Production} & Monthly\_Production\_Tonnes & tonnes \\
+ & Release\_Cycles\_Per\_Year & count \\
+\midrule
+\multirow{3}{*}{Environmental} & Carbon\_Emissions\_tCO2e & tonnes CO2 eq. \\
+ & Water\_Usage\_Million\_Litres & million litres \\
+ & Landfill\_Waste\_Tonnes & tonnes \\
+\midrule
+\multirow{2}{*}{Economic} & Avg\_Item\_Price\_USD & USD \\
+ & GDP\_Contribution\_Million\_USD & million USD \\
+\midrule
+\multirow{5}{*}{Sustainability} & Env\_Cost\_Index & index [0,1] \\
+ & Sustainability\_Score & score [0,100] \\
+ & Transparency\_Index & index [0,100] \\
+ & Compliance\_Score & score [0,100] \\
+ & Ethical\_Rating & rating [0,5] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Standardization}
+Each variable was standardized using the z-score transformation:
+\begin{equation}
+    z_{ij} = \frac{x_{ij} - \bar{x}_j}{s_j}
+\end{equation}
+
+where $\bar{x}_j = \frac{1}{n}\sum_{i=1}^{n} x_{ij}$ and $s_j = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_{ij} - \bar{x}_j)^2}$.
+
+\subsection{Algorithm Implementation}
+
+\begin{algorithm}[H]
+\caption{Principal Component Analysis}
+\begin{algorithmic}[1]
+\Require Data matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$
+\Ensure Principal components $\mathbf{Z}$, Loadings $\mathbf{L}$, Eigenvalues $\boldsymbol{\lambda}$
+\State Compute mean: $\bar{\mathbf{x}} = \frac{1}{n}\sum_{i=1}^{n} \mathbf{x}_i$
+\State Compute std: $\mathbf{s} = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(\mathbf{x}_i - \bar{\mathbf{x}})^2}$
+\State Standardize: $\mathbf{Z} \leftarrow (\mathbf{X} - \bar{\mathbf{x}}) \oslash \mathbf{s}$
+\State Compute correlation: $\mathbf{R} \leftarrow \frac{1}{n-1}\mathbf{Z}^\top\mathbf{Z}$
+\State Eigendecomposition: $(\boldsymbol{\lambda}, \mathbf{V}) \leftarrow \text{eig}(\mathbf{R})$
+\State Sort by $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_p$
+\State Compute loadings: $\mathbf{L} \leftarrow \mathbf{V} \cdot \text{diag}(\sqrt{\boldsymbol{\lambda}})$
+\State Project data: $\mathbf{Z}_{PC} \leftarrow \mathbf{Z} \cdot \mathbf{V}$
+\State \Return $\mathbf{Z}_{PC}$, $\mathbf{L}$, $\boldsymbol{\lambda}$
+\end{algorithmic}
+\end{algorithm}
+
+%==============================================================================
+\section{Results}
+%==============================================================================
+
+\subsection{Correlation Matrix Analysis}
+
+The correlation matrix reveals the linear relationships between variables before PCA. Figure \ref{fig:correlation} presents the correlation heatmap.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../figures/correlation_matrix.png}
+    \caption{Correlation matrix of environmental and sustainability variables. The color scale ranges from dark blue (strong negative correlation) to dark red (strong positive correlation).}
+    \label{fig:correlation}
+\end{figure}
+
+\subsection{Eigenvalue Analysis}
+
+Table \ref{tab:eigenvalues} presents the eigenvalue decomposition results.
+
+\begin{table}[H]
+\centering
+\caption{Eigenvalue analysis and variance explained}
+\label{tab:eigenvalues}
+\begin{tabular}{cccc}
+\toprule
+\textbf{Component} & \textbf{Eigenvalue ($\lambda$)} & \textbf{Variance (\%)} & \textbf{Cumulative (\%)} \\
+\midrule
+PC1 & 1.1041 & 9.20 & 9.20 \\
+PC2 & 1.0596 & 8.83 & 18.03 \\
+PC3 & 1.0549 & 8.79 & 26.81 \\
+PC4 & 1.0455 & 8.71 & 35.52 \\
+PC5 & 1.0335 & 8.61 & 44.13 \\
+PC6 & 1.0058 & 8.38 & 52.51 \\
+\midrule
+PC7 & 0.9833 & 8.19 & 60.70 \\
+PC8 & 0.9762 & 8.13 & 68.84 \\
+PC9 & 0.9655 & 8.04 & 76.88 \\
+PC10 & 0.9465 & 7.88 & 84.76 \\
+PC11 & 0.9299 & 7.75 & 92.51 \\
+PC12 & 0.8991 & 7.49 & 100.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Observation:} The eigenvalues are relatively uniform (ranging from 0.90 to 1.10), indicating low correlation among variables. This is characteristic of near-orthogonal variable structure.
+
+\subsection{Component Selection}
+
+Using the Kaiser criterion ($\lambda > 1$), we retain \textbf{6 principal components}, explaining 52.51\% of total variance.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../figures/scree_plot.png}
+    \caption{Scree plot showing eigenvalues (left) and explained variance (right). The red dashed line indicates the Kaiser criterion threshold ($\lambda = 1$).}
+    \label{fig:scree}
+\end{figure}
+
+\subsection{Correlation Circle}
+
+The correlation circle (Figure \ref{fig:circle}) displays the loadings of variables on the first two principal components.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../figures/correlation_circle.png}
+    \caption{Correlation circle showing variable loadings on PC1 and PC2. Variables closer to the unit circle are better represented. Arrow direction indicates correlation sign with each component.}
+    \label{fig:circle}
+\end{figure}
+
+\textbf{Interpretation of the Correlation Circle:}
+\begin{itemize}
+    \item Variables with arrows pointing in the same direction are positively correlated
+    \item Variables with arrows pointing in opposite directions are negatively correlated
+    \item Variables close to the circle edge ($\|\ell\| \approx 1$) are well-represented
+    \item Variables near the origin are poorly captured by PC1-PC2
+\end{itemize}
+
+\subsection{Individuals Representation}
+
+Figure \ref{fig:individuals} shows the projection of observations onto the first two principal components, colored by brand.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../figures/individuals_plot_brands.png}
+    \caption{Scatter plot of individuals in the PC1-PC2 plane. Each point represents a brand observation, with X markers indicating brand centroids.}
+    \label{fig:individuals}
+\end{figure}
+
+\subsection{Biplot}
+
+The biplot (Figure \ref{fig:biplot}) combines both variables and individuals in a single visualization.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{../figures/biplot.png}
+    \caption{Biplot showing simultaneous representation of variables (red arrows) and individuals (colored points) in the PC1-PC2 plane.}
+    \label{fig:biplot}
+\end{figure}
+
+%==============================================================================
+\section{Discussion}
+%==============================================================================
+
+\subsection{Principal Component Interpretation}
+
+Based on the factor loadings, we interpret the retained components:
+
+\textbf{PC1 (9.20\% variance):} Captures the primary environmental impact dimension, with loadings on carbon emissions, water usage, and production volume.
+
+\textbf{PC2 (8.83\% variance):} Represents the sustainability governance dimension, including transparency and compliance scores.
+
+\textbf{PC3-PC6:} Capture additional latent factors related to economic performance, ethical ratings, and regional variations.
+
+\subsection{Quality of the Factorial Representation}
+
+The overall quality of representation on the first two principal components is:
+\begin{equation}
+    Q_{1,2} = \tau_1 + \tau_2 = 9.20\% + 8.83\% = 18.03\%
+\end{equation}
+
+This relatively low value indicates that the original variables are largely independent, which is actually valuable information about the data structure.
+
+\subsection{Brand Positioning Analysis}
+
+The centroid positions of brands in the PC1-PC2 plane reveal:
+\begin{itemize}
+    \item Brands are not strongly differentiated on the first factorial plane
+    \item High within-brand variance suggests country and temporal effects
+    \item No single brand dominates the environmental impact dimension
+\end{itemize}
+
+%==============================================================================
+\section{Conclusion}
+%==============================================================================
+
+\subsection{Key Findings}
+
+\begin{enumerate}
+    \item \textbf{Dimensionality Reduction:} 12 variables reduced to 6 principal components retaining 52.51\% variance (Kaiser criterion)
+    
+    \item \textbf{Variable Independence:} The near-uniform eigenvalue distribution indicates low multicollinearity among environmental metrics, suggesting they capture distinct aspects of sustainability
+    
+    \item \textbf{Interpretation:} The first two components primarily capture environmental impact and governance dimensions respectively
+    
+    \item \textbf{Brand Analysis:} No significant clustering of brands suggests similar environmental profiles across the fast fashion industry
+\end{enumerate}
+
+\subsection{Methodological Contributions}
+
+\begin{itemize}
+    \item Demonstrated correlation-based PCA for heterogeneous environmental data
+    \item Applied rigorous component selection using multiple criteria
+    \item Provided comprehensive visualization through correlation circles and biplots
+\end{itemize}
+
+\subsection{Limitations and Future Work}
+
+\begin{itemize}
+    \item The low explained variance on first components suggests potential non-linear relationships (consider Kernel PCA)
+    \item Temporal dynamics not explicitly modeled (consider dynamic PCA)
+    \item Could extend to Factor Analysis for confirmatory modeling
+\end{itemize}
+
+%==============================================================================
+\section*{References}
+%==============================================================================
+
+\begin{enumerate}
+    \item Jolliffe, I. T., \& Cadima, J. (2016). Principal component analysis: a review and recent developments. \textit{Philosophical Transactions of the Royal Society A}, 374(2065), 20150202.
+    
+    \item Abdi, H., \& Williams, L. J. (2010). Principal component analysis. \textit{Wiley Interdisciplinary Reviews: Computational Statistics}, 2(4), 433-459.
+    
+    \item Pearson, K. (1901). On lines and planes of closest fit to systems of points in space. \textit{The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science}, 2(11), 559-572.
+    
+    \item Hotelling, H. (1933). Analysis of a complex of statistical variables into principal components. \textit{Journal of Educational Psychology}, 24(6), 417-441.
+    
+    \item ST2DA Course Materials: Chapters 1-2, Academic Year 2025-2026.
+\end{enumerate}
+
+%==============================================================================
+\appendix
+\section{Supplementary Materials}
+%==============================================================================
+
+\subsection{Python Implementation}
+
+The complete analysis was implemented in Python using:
+\begin{itemize}
+    \item \texttt{numpy} (v2.3) - Numerical computations
+    \item \texttt{pandas} (v2.3) - Data manipulation
+    \item \texttt{scikit-learn} (v1.8) - PCA implementation
+    \item \texttt{matplotlib} \& \texttt{seaborn} - Visualization
+\end{itemize}
+
+\subsection{Generated Files}
+
+\begin{itemize}
+    \item \texttt{pca\_transformed\_data.csv} - Principal component scores
+    \item \texttt{pca\_loadings.csv} - Factor loading matrix
+    \item \texttt{pca\_eigenvalues.csv} - Eigenvalue analysis
+\end{itemize}
+
+\end{document}
+
