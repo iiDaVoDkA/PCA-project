@@ -99,9 +99,59 @@ The primary objectives of this analysis are:
 We utilize the \textbf{True Cost of Fast Fashion} dataset containing:
 \begin{itemize}
     \item \textbf{Observations}: $n = 3000$ records from 5 brands across 10 countries (2015-2024)
-    \item \textbf{Variables}: $p = 15$ quantitative environmental, sustainability, and social metrics
+    \item \textbf{Variables}: $p = 25$ total attributes (15 quantitative used for PCA)
     \item \textbf{Brands}: Shein, Zara, H\&M, Forever 21, Uniqlo
 \end{itemize}
+
+\subsubsection{Complete Attribute Description}
+
+Table \ref{tab:attributes} provides a comprehensive description of all 25 attributes available in the dataset.
+
+\begin{table}[H]
+\centering
+\caption{Complete description of all dataset attributes}
+\label{tab:attributes}
+\small
+\begin{tabular}{clll}
+\toprule
+\textbf{\#} & \textbf{Variable Name} & \textbf{Type} & \textbf{Description} \\
+\midrule
+1 & Brand & Categorical & Fast fashion brand name \\
+2 & Country & Categorical & Country of operation \\
+3 & Year & Integer & Year of observation (2015-2024) \\
+\midrule
+4 & Monthly\_Production\_Tonnes & Float & Monthly production volume (tonnes) \\
+5 & Avg\_Item\_Price\_USD & Float & Average retail price per item (USD) \\
+6 & Release\_Cycles\_Per\_Year & Integer & New collection releases per year \\
+\midrule
+7 & Carbon\_Emissions\_tCO2e & Float & Annual carbon emissions (tonnes CO$_2$e) \\
+8 & Water\_Usage\_Million\_Litres & Float & Annual water consumption (ML) \\
+9 & Landfill\_Waste\_Tonnes & Float & Annual waste to landfill (tonnes) \\
+\midrule
+10 & Avg\_Worker\_Wage\_USD & Float & Average monthly worker wage (USD) \\
+11 & Working\_Hours\_Per\_Week & Integer & Average weekly working hours \\
+12 & Child\_Labor\_Incidents & Integer & Reported child labor incidents \\
+\midrule
+13 & Return\_Rate\_Percent & Float & Product return rate (\%) \\
+14 & Avg\_Spend\_Per\_Customer\_USD & Float & Average customer spending (USD) \\
+15 & Shopping\_Frequency\_Per\_Year & Integer & Customer shopping frequency \\
+\midrule
+16 & Instagram\_Mentions\_Thousands & Integer & Social mentions on Instagram (K) \\
+17 & TikTok\_Mentions\_Thousands & Integer & Social mentions on TikTok (K) \\
+18 & Sentiment\_Score & Float & Social sentiment score [-1, 1] \\
+19 & Social\_Sentiment\_Label & Categorical & Sentiment classification \\
+\midrule
+20 & GDP\_Contribution\_Million\_USD & Float & Economic contribution (M USD) \\
+21 & Env\_Cost\_Index & Float & Environmental cost index [0, 1] \\
+22 & Sustainability\_Score & Float & Sustainability rating [0, 100] \\
+23 & Transparency\_Index & Float & Corporate transparency [0, 100] \\
+24 & Compliance\_Score & Float & Regulatory compliance [0, 100] \\
+25 & Ethical\_Rating & Float & Ethical practices rating [0, 5] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Note:} For PCA analysis, we use 15 quantitative variables from categories: Production (2), Environmental (3), Social (3), Economic (2), and Sustainability (5).
 
 %==============================================================================
 \section{Mathematical Framework}

@@ -101,9 +101,9 @@
             \textbf{Overview:}
             \begin{itemize}
                 \item $n = 3000$ observations
-                \item $p = 15$ quantitative variables
-                \item 5 brands: Shein, Zara, H\&M, Forever 21, Uniqlo
-                \item 10 countries, 2015-2024
+                \item $p = 25$ total attributes
+                \item 15 quantitative for PCA
+                \item 5 brands, 10 countries
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -122,6 +122,67 @@
     \begin{alertblock}{Why PCA?}
         Variables have \textbf{different scales} (tonnes, USD, \%) $\Rightarrow$ Use \textbf{correlation-based PCA}
     \end{alertblock}
+\end{frame}
+
+\begin{frame}{Complete Dataset Attributes}
+    \small
+    \begin{columns}
+        \begin{column}{0.48\textwidth}
+            \textbf{Identifiers (3):}
+            \begin{itemize}
+                \item Brand, Country, Year
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Production (2):}
+            \begin{itemize}
+                \item Monthly\_Production\_Tonnes
+                \item Release\_Cycles\_Per\_Year
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Environmental (3):}
+            \begin{itemize}
+                \item Carbon\_Emissions\_tCO2e
+                \item Water\_Usage\_Million\_Litres
+                \item Landfill\_Waste\_Tonnes
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Social (3):}
+            \begin{itemize}
+                \item Avg\_Worker\_Wage\_USD
+                \item Working\_Hours\_Per\_Week
+                \item Child\_Labor\_Incidents
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \textbf{Economic (2):}
+            \begin{itemize}
+                \item Avg\_Item\_Price\_USD
+                \item GDP\_Contribution\_Million\_USD
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Consumer (4):}
+            \begin{itemize}
+                \item Return\_Rate\_Percent
+                \item Avg\_Spend\_Per\_Customer\_USD
+                \item Shopping\_Frequency\_Per\_Year
+                \item Social media mentions (2)
+            \end{itemize}
+            
+            \vspace{0.2cm}
+            \textbf{Sustainability (5):}
+            \begin{itemize}
+                \item Env\_Cost\_Index
+                \item Sustainability\_Score
+                \item Transparency\_Index
+                \item Compliance\_Score
+                \item Ethical\_Rating
+            \end{itemize}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 %==============================================================================
